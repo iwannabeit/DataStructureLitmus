@@ -1,10 +1,73 @@
 #include <iostream>
-#include <queue>
+
 using namespace std;
 
+class Queue{
+public:
+  int *data;
+  int capacity;
+  int rear, front;
+  int count;
+
+public:
+  Queue(int capacity) : capacity(capacity){
+    data = new int[capacity];
+    front = rear = count = 0;
+  }
+
+  ~Queue(){
+    delete[] data;
+  }
+
+  bool isEmpty(){
+    return front == rear;
+  }
+
+  bool isFull(){
+    return (rear + 1) % capacity == front;
+  }
+
+  void push(int val){
+    if(isFull()){
+      cout << "포화 상태" << endl;
+    }
+    else{
+      rear = (rear + 1) % capacity;
+      data[rear] = val;
+      count++;
+    }
+  }
+
+  int pop(){
+    if(isEmpty()){
+      cout << "비어 있음" <<endl;
+      return 0;
+    }
+    else{
+      front = (front + 1) % capacity;
+      count--;
+      return data[front];
+    }
+  }
+
+  int getFront(){
+    if(isEmpty()){
+      cout << "비어 있음" <<endl;
+      return 0;
+    }
+    else{
+      return data[(front+1) % capacity];
+    }
+  }
+
+  int size(){
+    return count;
+  }
+  
+};
+
 class CircleQueue{
-private:
-  queue<int> q;
+public:
   int N,K,D;
   int *life;
 
@@ -13,40 +76,31 @@ public:
     life = new int[N];
   }
 
-  void push(int a){
-    q.push(a);
-  }
-
-  void size(){
-    cout << q.size() << endl;
-  }
-
   void circle(){
+    Queue q(N+1);
+
     for(int i=1; i<=N; i++){
       q.push(i);
       life[i-1] = D;
     }
 
-    while(!q.empty()){
+    while(!q.isEmpty()){
       if(q.size() > 1){ //7
         for(int i=0; i< K-1; i++){ //k번째 전에는 앞에 값 다시 넣어주기
-          q.push(q.front());
-          q.pop();
+          int f = q.pop();
+          q.push(f);
         }
 
-        if(life[q.front()-1] <= 1){ //목숨이 1보다 작으면 pop
-          cout << q.front() << ",";
+        if(life[q.getFront()-1] <= 1){ //목숨이 1보다 작으면 pop
+          cout << q.getFront() << ",";
           q.pop();
         }
         else{ //1보다 크면
-          life[q.front()-1]--;
-          // cout << life[q.front()-1] << endl;
-          // q.push(q.front());
-          // q.pop();
+          life[q.getFront()-1]--;
         }
       }
       else{
-        cout << q.front();
+        cout << q.getFront();
         q.pop();
       }
     }
@@ -66,7 +120,7 @@ int main(){
 
   circle.circle();
 
-  cout << ">";
+  cout << ">\n";
 
   return 0;
 }
